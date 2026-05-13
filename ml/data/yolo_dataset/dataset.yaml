@@ -1,0 +1,9 @@
+path: ml/data/yolo_dataset 
+
+train: images/train
+val: images/val
+
+nc: 1 #Number of classes
+
+names:
+  0: card #Names of object (YOLO only detects if there is a card in the cam)
