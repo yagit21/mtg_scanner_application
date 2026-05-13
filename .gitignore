@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+.venv/
+
+# ML generated files
+ml/data/
+ml/models/
+ml/runs/
+ml/data/AllCards.json
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
