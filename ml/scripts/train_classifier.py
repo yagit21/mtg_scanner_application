@@ -5,6 +5,7 @@ from torchvision import datasets
 from torchvision import transforms
 from torchvision import models
 from torch.utils.data import DataLoader
+import json
 
 #Checks if the device has a NVIDIA/CUDA (this will be faster) but defaults to the cpu since I don't have either
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -15,6 +16,12 @@ transform = transforms.Compose([transforms.Resize((224,224)), transforms.ToTenso
 #Datasets (automatically assigns labels based on the folder names)
 train_dataset = datasets.ImageFolder("ml/data/classifier_dataset/train", transform=transform)
 val_dataset = datasets.ImageFolder("ml/data/classifier_dataset/val", transform=transform)
+
+#Saving the class names 
+class_names = train_dataset.classes
+
+with open("ml/models/class_names.json", "w") as f:
+    json.dump(class_names, f)
 
 #Loaders (serves the images to the model in groups of 16 at a time)
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
