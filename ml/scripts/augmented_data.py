@@ -17,43 +17,43 @@ background_dir = os.path.join(data_dir, "backgrounds")
 os.makedirs(output_root, exist_ok=True)
 
 #Generate cards with different camera/card angles
-def perspective_warp(pil_img):
-    img = np.array(pil_img) #This transforms the image into a martix of pixels
-    h, w = img.shape[:2] #Getting the image size (height and width)
-    #This is the original corner of the card (top-left, top-right, bottom-left, bottom-right)
-    pts1 = np.float32([[0,0],[w,0],[0,h],[w,h]])
-    shift = 0.15 * w
-    #This is the new distorted corners the card is assigned with random shifts
-    pts2 = np.float32([
-        [random.uniform(0, shift), random.uniform(0, shift)],
-        [w-random.uniform(0, shift), random.uniform(0, shift)],
-        [random.uniform(0, shift), h-random.uniform(0, shift)],
-        [w-random.uniform(0, shift), h-random.uniform(0, shift)]
-    ])
-    #This uses openCV to calculate how each pixel moves
-    matrix = cv2.getPerspectiveTransform(pts1, pts2)
-    #This bends the image to simulate an angled camera, titlted card, etc
-    warped = cv2.warpPerspective(img, matrix, (w, h))
+#def perspective_warp(pil_img):
+    # img = np.array(pil_img) #This transforms the image into a martix of pixels
+    # h, w = img.shape[:2] #Getting the image size (height and width)
+    # #This is the original corner of the card (top-left, top-right, bottom-left, bottom-right)
+    # pts1 = np.float32([[0,0],[w,0],[0,h],[w,h]])
+    # shift = 0.15 * w
+    # #This is the new distorted corners the card is assigned with random shifts
+    # pts2 = np.float32([
+    #     [random.uniform(0, shift), random.uniform(0, shift)],
+    #     [w-random.uniform(0, shift), random.uniform(0, shift)],
+    #     [random.uniform(0, shift), h-random.uniform(0, shift)],
+    #     [w-random.uniform(0, shift), h-random.uniform(0, shift)]
+    # ])
+    # #This uses openCV to calculate how each pixel moves
+    # matrix = cv2.getPerspectiveTransform(pts1, pts2)
+    # #This bends the image to simulate an angled camera, titlted card, etc
+    # warped = cv2.warpPerspective(img, matrix, (w, h))
 
-    return Image.fromarray(warped)
+    # return Image.fromarray(warped)
 
 #Partially hidden cards
-def add_occlusion(pil_img):
-    #Transforming the image and getting its size
-    img = np.array(pil_img)
-    h, w = img.shape[:2]
-    #Giving randomised width and height of the opaque part placed over the image 
-    occ_w = random.randint(30, 100)
-    occ_h = random.randint(30, 100)
-    #Assigning the patch a random location
-    x = random.randint(0, w - occ_w)
-    y = random.randint(0, h - occ_h)
-    #Generating a random colour value (helps the model become indifferent to the appearance of the object)
-    colour = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
-    #This function draws a box size of occ_w and occ_h that overwrites the image pixel data (the thickness parameter [-1] makes the function draw a filled rectangle)
-    cv2.rectangle(img, (x,y), (x+occ_w,y+occ_h), colour, -1)
+# def add_occlusion(pil_img):
+#     #Transforming the image and getting its size
+#     img = np.array(pil_img)
+#     h, w = img.shape[:2]
+#     #Giving randomised width and height of the opaque part placed over the image 
+#     occ_w = random.randint(30, 100)
+#     occ_h = random.randint(30, 100)
+#     #Assigning the patch a random location
+#     x = random.randint(0, w - occ_w)
+#     y = random.randint(0, h - occ_h)
+#     #Generating a random colour value (helps the model become indifferent to the appearance of the object)
+#     colour = (random.randint(0,255), random.randint(0,255), random.randint(0,255))
+#     #This function draws a box size of occ_w and occ_h that overwrites the image pixel data (the thickness parameter [-1] makes the function draw a filled rectangle)
+#     cv2.rectangle(img, (x,y), (x+occ_w,y+occ_h), colour, -1)
 
-    return Image.fromarray(img)
+#     return Image.fromarray(img)
 
 #Creating different lightings
 def add_shadow(img, x, y, w, h):
@@ -96,21 +96,22 @@ def add_background(pil_img):
     #Resizing the image
     card = cv2.resize(card, (card_w, card_h))
 
-    #Random position/partial offscreen cards 
-    x_offset = random.randint(-card_w // 4, 640 - card_w // 2)
-    y_offset = random.randint(-card_h // 4, 640 - card_h // 2)
+    #Keep entire card onscreen
+    x_offset = random.randint(0, 640 - card_w)
+    y_offset = random.randint(0, 640 - card_h)
+    
     #Applying a random transparency between 88% to 98%
     alpha = random.uniform(0.88, 0.98)
     #Adding shadow to the card
     bg_np = add_shadow(bg_np, x_offset, y_offset, card_w, card_h)
-    #Rotating the card randomly between -40 and 40 degrees
-    angle = random.uniform(-40, 40)
+    #Rotating the card randomly between -10 and 10 degrees
+    angle = random.uniform(-10, 10)
     #Using the center of the card to pivot rotation
     center = (card_w // 2, card_h // 2)
     #Using the cv2 getRotationMatrix2D to define the rotation (the 1.0 keeps the image 100% of the original size)
     matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
     #Applying the martix to the card (to ensure no empty spaces at the border after rotation cv2.BORDER_REPLICATE is used which fills empty spaces using the same border colour as the card)
-    card = cv2.warpAffine(card, matrix, (card_w, card_h), borderMode=cv2.BORDER_REPLICATE)
+    #card = cv2.warpAffine(card, matrix, (card_w, card_h), borderMode=cv2.BORDER_REPLICATE)
     
     #Calculating the new boundary coordinates to ensure they stay within the 640 by 640 limit (ensuring the starting points aren't top-left and the ending points aren't bottom-right)
     x1 = max(0, x_offset)
@@ -124,12 +125,14 @@ def add_background(pil_img):
     blended = cv2.addWeighted(region, 1 - alpha, card_crop, alpha, 0)
     bg_np[y1:y2, x1:x2] = blended #Replaces the background with the new blended image
 
-    #Creates a YOLO bounding box relate to the 640 by 640 card
-    x_center = (x_offset + card_w/2) / 640 #The horizontal and vertical centers of the bounding box divided by the card's width/height
-    y_center = (y_offset + card_h/2) / 640
-    #Total width/height of the bounding box divided by the card's width/height
-    w = card_w / 640
-    h = card_h / 640
+    box_w = x2 - x1
+    box_h = y2 - y1
+
+    x_center = ((x1 + x2) / 2) / 640
+    y_center = ((y1 + y2) / 2) / 640
+
+    w = box_w / 640
+    h = box_h / 640
     
     #Applying a slight Gaussian blur
     bg_np = cv2.GaussianBlur(bg_np, (3,3), 0)
@@ -143,17 +146,17 @@ def add_background(pil_img):
     #Converting the NumPy array of the image back into a PIL image and returning it with its bounding box coordinates
     return Image.fromarray(bg_np), [x_center, y_center, w, h]
 
-def random_crop(pil_img):
-    #Getting the img as a numpy arrary
-    img = np.array(pil_img)
-    h, w = img.shape[:2] #Image dimensions
-    #Picking a random horizontal/vertical crop point (limited to max 25% of the image's original height/width)
-    crop_x = random.randint(0, int(w * 0.25))
-    crop_y = random.randint(0, int(h * 0.25))
-    #Using numpy slicing to crop the image to the new point coordinates
-    cropped = img[crop_y:h, crop_x:w]
-    #Converting the image back into a pillow object
-    return Image.fromarray(cropped)
+# def random_crop(pil_img):
+#     #Getting the img as a numpy arrary
+#     img = np.array(pil_img)
+#     h, w = img.shape[:2] #Image dimensions
+#     #Picking a random horizontal/vertical crop point (limited to max 25% of the image's original height/width)
+#     crop_x = random.randint(0, int(w * 0.25))
+#     crop_y = random.randint(0, int(h * 0.25))
+#     #Using numpy slicing to crop the image to the new point coordinates
+#     cropped = img[crop_y:h, crop_x:w]
+#     #Converting the image back into a pillow object
+#     return Image.fromarray(cropped)
 
 transform = transforms.Compose([   
     transforms.ColorJitter(
@@ -161,10 +164,7 @@ transform = transforms.Compose([
     
     transforms.RandomAdjustSharpness(
         sharpness_factor=2, p=0.3 #30% chance the sharpness increases by a factor of 2
-    ),
-    #10% chance to turn the image into grayscale
-    transforms.RandomGrayscale(p=0.1)
-    #Crops a random part of the image (taking 90% to 100% of the area) and resizes it to 224 by 224 pixels
+    )
 ])
 
 
@@ -180,17 +180,6 @@ for card in os.listdir(input_root): #For each card in card_images folder
     #Runing the augmentation process 40 times for each original image
     for i in range(aug_per_img):
         aug_img = transform(img) #Applying transformations
-        #Perspective
-        if random.random() > 0.5:
-            aug_img = perspective_warp(aug_img)
-
-        #Partial crop
-        if random.random() > 0.6:
-            aug_img = random_crop(aug_img)
-
-        #Occlusion
-        if random.random() > 0.7:
-            aug_img = add_occlusion(aug_img)
 
         #Add different backgrounds
         aug_img, bbox = add_background(aug_img)
