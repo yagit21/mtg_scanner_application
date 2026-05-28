@@ -187,6 +187,20 @@ for card in os.listdir(input_root): #For each card in card_images folder
         #Save augmented image
         img_path = os.path.join(out_path, "img_%s.jpg" % (i)) 
         aug_img.save(img_path)
+        
+        #(DEBUG) draw bbox to verify labels
+        debug = np.array(aug_img).copy()
+
+        x_center, y_center, w, h = bbox
+
+        x1 = int((x_center - w/2) * 640)
+        y1 = int((y_center - h/2) * 640)
+        x2 = int((x_center + w/2) * 640)
+        y2 = int((y_center + h/2) * 640)
+
+        cv2.rectangle(debug, (x1,y1), (x2,y2), (0,255,0), 2)
+
+        cv2.imwrite(os.path.join(out_path, f"debug_{i}.jpg"), debug)
 
         #Save YOLO label file in YOLO format
         label_path = os.path.join(out_path, "img_%s.txt" % (i))

@@ -1,37 +1,97 @@
-
 from torchvision import transforms
 from PIL import Image
 import os
 
 #Paths
-input_root = "ml/data/card_images"
+input_root = "ml/data/realistic_cards"
 output_root = "ml/data/classifier_augmented"
 
 os.makedirs(output_root, exist_ok=True)
 
-#Simpler augmentations
+#Better augmentations for MTG cards
 transform = transforms.Compose([
-    transforms.RandomRotation(15), #Rotating the image max 15 dgrees
-    transforms.ColorJitter(brightness=0.3, contrast=0.3), #Randomly changing brightness and contrast up to 30%
-    transforms.RandomResizedCrop(224,scale=(0.9, 1.0)), #Crops a random section of the image and resizes it to 224 by 224 pixels
-    transforms.GaussianBlur(3) #Applying a slight blur
+
+    #Small realistic rotation
+    transforms.RandomRotation(10),
+
+    #Perspective distortion
+    transforms.RandomPerspective(distortion_scale=0.12, p=0.4),
+
+    # Small movement/zoom changes
+    transforms.RandomAffine(
+        degrees=5,
+        translate=(0.03, 0.03),
+        scale=(0.95, 1.05)
+    ),
+
+    # Mild lighting changes
+    transforms.ColorJitter(
+        brightness=0.15,
+        contrast=0.15,
+        saturation=0.1
+    ),
+
+    # Keep full card visible
+    transforms.Resize((224, 224)),
+
+    # Mild camera blur
+    transforms.GaussianBlur(
+        kernel_size=3,
+        sigma=(0.1, 0.8)
+    )
 ])
 
-aug_per_img = 40 
+#Small number since I now have multiple photo
+aug_per_img = 60
 
-for card in os.listdir(input_root): #Looping through each card
-    
-    in_path = os.path.join(input_root, card)
-    out_path = os.path.join(output_root, card)
-    #Creating (or making sure the location exists)
-    os.makedirs(out_path, exist_ok=True)
-    #Opens the img of the card saved in the folder and converts it to an RGB
-    img = Image.open(os.path.join(in_path, "img_0.jpg")).convert("RGB")
-    #Generating 40 modified versions of the image
-    for i in range(aug_per_img):
-        aug_img = transform(img) #Applying the transformations
-        aug_img.save(os.path.join(out_path, "img_%s.jpg" % (i))) #Saving the image to the classifer_augmented folder
-    
-    print("%s complete." % (card))
+#Loop through each card folder
+for card in os.listdir(input_root):
+
+    card_input_path = os.path.join(input_root, card)
+
+    #Skip non-folders
+    if not os.path.isdir(card_input_path):
+        continue
+
+    card_output_path = os.path.join(output_root, card)
+    os.makedirs(card_output_path, exist_ok=True)
+
+    img_counter = 0
+
+    #Loop through every real image
+    for img_name in os.listdir(card_input_path):
+
+        if not img_name.lower().endswith((".jpg", ".jpeg", ".png")):
+            continue
+
+        img_path = os.path.join(card_input_path, img_name)
+
+        try:
+            img = Image.open(img_path).convert("RGB")
+
+            #Save original resized image too
+            original = img.resize((224, 224))
+            original.save(os.path.join(card_output_path, f"img_{img_counter}.jpg"))
+
+            img_counter += 1
+
+            #Generate augmentations
+            for i in range(aug_per_img):
+
+                aug_img = transform(img)
+
+                aug_img.save(
+                    os.path.join(
+                        card_output_path,
+                        f"img_{img_counter}.jpg"
+                    )
+                )
+
+                img_counter += 1
+
+        except Exception as e:
+            print(f"Error processing {img_path}: {e}")
+
+    print(f"{card} complete.")
 
 print("Classifier dataset complete.")

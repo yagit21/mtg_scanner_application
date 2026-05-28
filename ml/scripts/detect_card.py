@@ -35,6 +35,7 @@ def detect_card(image):
     input_tensor = preprocess(image)
     #Putting the image into the ONNX model to get predictions
     outputs = session.run(None, {input_name: input_tensor})
+    #print("Output shape:", outputs[0].shape)
     #Extracting the raw detection data (bounding box, coordinates, confidence scores)
     predictions = outputs[0][0]
     #Since the model might find multiple things we need to find the prediction with the highest confidence score
