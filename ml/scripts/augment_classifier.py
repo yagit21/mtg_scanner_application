@@ -17,28 +17,17 @@ transform = transforms.Compose([
     #Perspective distortion
     transforms.RandomPerspective(distortion_scale=0.12, p=0.4),
 
-    # Small movement/zoom changes
-    transforms.RandomAffine(
-        degrees=5,
-        translate=(0.03, 0.03),
-        scale=(0.95, 1.05)
-    ),
+    #Small movement/zoom changes
+    transforms.RandomAffine(degrees=5, translate=(0.03, 0.03), scale=(0.95, 1.05)),
 
-    # Mild lighting changes
-    transforms.ColorJitter(
-        brightness=0.15,
-        contrast=0.15,
-        saturation=0.1
-    ),
+    #Mild lighting changes
+    transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.1),
 
-    # Keep full card visible
+    #Keep full card visible
     transforms.Resize((224, 224)),
 
-    # Mild camera blur
-    transforms.GaussianBlur(
-        kernel_size=3,
-        sigma=(0.1, 0.8)
-    )
+    #Mild camera blur
+    transforms.GaussianBlur(kernel_size=3, sigma=(0.1, 0.8))
 ])
 
 #Small number since I now have multiple photo
@@ -71,27 +60,19 @@ for card in os.listdir(input_root):
 
             #Save original resized image too
             original = img.resize((224, 224))
-            original.save(os.path.join(card_output_path, f"img_{img_counter}.jpg"))
+            original.save(os.path.join(card_output_path, "img_%s.jpg" % (img_counter)))
 
             img_counter += 1
 
             #Generate augmentations
             for i in range(aug_per_img):
-
                 aug_img = transform(img)
-
-                aug_img.save(
-                    os.path.join(
-                        card_output_path,
-                        f"img_{img_counter}.jpg"
-                    )
-                )
-
+                aug_img.save(os.path.join(card_output_path, "img_%s.jpg" % (img_counter)))
                 img_counter += 1
 
         except Exception as e:
-            print(f"Error processing {img_path}: {e}")
+            print("Error processing %s: %s" % (img_path, e))
 
-    print(f"{card} complete.")
+    print("%s complete." % (card))
 
 print("Classifier dataset complete.")
