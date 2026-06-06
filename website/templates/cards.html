@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Card Database</h1>
+
+<div id="cards-grid"></div>
+
+<div
+id="card-modal"
+class="popup">
+
+    <div class="popup-card card-modal">
+
+        <button id="close-card-modal" class="close-modal">
+            ✕
+        </button>
+
+        <img id="modal-image">
+
+        <h2 id="modal-name"></h2>
+
+        <p id="modal-mana"></p>
+
+        <p id="modal-rarity"></p>
+
+        <p id="modal-set"></p>
+
+        <p id="modal-text"></p>
+
+        <p id="modal-price"></p>
+
+        <button id="wishlist-btn">
+            Add To Wishlist
+        </button>
+
+    </div>
+
+</div>
+
+<script src="/static/cards.js"></script>
+
+{% endblock %}

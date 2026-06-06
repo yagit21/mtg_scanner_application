@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Collections</h1>
+
+<button id="new-collection">
+Create Collection
+</button>
+
+<div id="collections">
+</div>
+
+<div id="collection-cards">
+</div>
+
+<div id="preview-panel">
+    <img id="preview-image">
+</div>
+
+<div id="collection-modal" class="popup">
+    <div class="popup-card">
+        <h2>
+            Create Collection
+        </h2>
+        <input id="collection-name" placeholder="Collection Name">
+        <h3>
+            Select Cards
+        </h3>
+        <div id="saved-card-list"></div>
+
+        <button id="create-collection-btn">
+            Create
+        </button>
+    </div>
+</div>
+
+<script src="/static/collections.js"></script>
+{% endblock %}

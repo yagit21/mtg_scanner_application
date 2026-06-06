@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Wishlist</h1>
+
+<div id="wishlist-grid" class="card-grid"></div>
+
+<script>
+
+async function loadWishlist(){
+
+    const response =
+    await fetch(
+        "/api/wishlist"
+    )
+
+    const cards =
+    await response.json()
+
+    const grid =
+    document.getElementById(
+        "wishlist-grid"
+    )
+
+    grid.innerHTML=""
+
+    cards.forEach(card=>{
+
+        grid.innerHTML += `
+
+        <div class="card-tile">
+
+            <img
+            src="${card.image}">
+
+            <h3>
+                ${card.name}
+            </h3>
+
+            <p>
+                $${card.price}
+            </p>
+
+        </div>
+
+        `
+    })
+}
+
+loadWishlist()
+
+</script>
+
+{% endblock %}

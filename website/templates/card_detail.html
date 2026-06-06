@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card-detail-wrapper">
+
+    <div class="card-visual">
+        <img src="{{ card.image_url }}" class="card-big-image">
+    </div>
+
+    <div class="card-info-panel">
+
+        <h1>{{ card.name }}</h1>
+
+        <div class="meta-row">
+            <span><b>Mana:</b> {{ card.mana_cost }}</span>
+            <span><b>Rarity:</b> {{ card.rarity }}</span>
+            <span><b>Set:</b> {{ card.set_name }}</span>
+        </div>
+
+        <p class="oracle-text">
+            {{ card.oracle_text }}
+        </p>
+
+        <div class="price-panel">
+            <h3>Market Value</h3>
+            <div id="price-value">${{ card.market_price }}</div>
+
+            <canvas id="price-chart" width="300" height="120"></canvas>
+        </div>
+
+        <div id="rp-box" class="rp-box"></div>
+
+        <div id="buy-section">
+            <h3>Where to buy</h3>
+            <div id="buy-links"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    //Passing the id into js
+    const CARD_ID = {{ card.id }};
+</script>
+<script src="/static/card_detail.js"></script>
+
+{% endblock %}

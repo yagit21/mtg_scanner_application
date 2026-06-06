@@ -1,27 +1,111 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>MTG Scanner</title>
+{% extends "base.html" %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% block title %}
+ManaVault Scanner
+{% endblock %}
 
-    <h1>MTG Card Scanner</h1>
+{% block content %}
 
-    <video id="webcam" autoplay playsinline></video>
+<div class="page-header">
 
-    <br>
+    <h1>
+        MTG Scanner
+    </h1>
 
-    <button id="scan-btn">Scan Card</button>
+    <p>
+        Scan cards instantly
+    </p>
 
-    <canvas id="canvas"></canvas>
+</div>
 
-    <div id="result">
-        Waiting for scan...
+<div class="scanner-grid">
+
+    <div class="scanner-section">
+
+        <div class="camera-card">
+
+            <video id="webcam" autoplay playsinline></video>
+
+            <div class="camera-buttons">
+
+                <button id="scan-btn">
+                    Scan Card
+                </button>
+
+                <button id="flip-btn">
+                    Flip Camera
+                </button>
+
+            </div>
+
+            <canvas id="canvas"></canvas>
+
+        </div>
+
     </div>
 
-    <script src="{{ url_for('static', filename='scanner.js') }}"></script>
+    <div id="result-panel">
 
-</body>
-</html>
+        <div class="card-image">
+
+            <img
+                id="card-art"
+                src=""
+                alt="Card">
+
+        </div>
+
+        <div class="card-info">
+
+            <h2 id="card-name">
+                Scan a card to begin
+            </h2>
+
+            <p id="card-type"></p>
+
+            <p id="card-text"></p>
+
+            <p id="card-price"></p>
+
+            <p id="confidence"></p>
+
+            <button id="save-btn">
+                Save Card
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+id="login-popup"
+class="popup">
+
+    <div class="popup-card">
+
+        <h2>
+            Login Required
+        </h2>
+
+        <p>
+            You must login to
+            save cards.
+        </p>
+
+        <a href="/login">
+
+            <button>
+                Login
+            </button>
+        </a>
+    </div>
+
+</div>
+
+<script
+src="{{ url_for('static', filename='scanner.js') }}">
+</script>
+
+{% endblock %}

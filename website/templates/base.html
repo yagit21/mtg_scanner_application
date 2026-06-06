@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+{% block title %}
+ManaVault
+{% endblock %}
+</title>
+
+<link
+rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+
+        <i class="fa-solid fa-dragon"></i>
+
+        ManaVault
+
+    </div>
+
+    <nav>
+
+        <a href="/">
+            <i class="fa-solid fa-camera"></i>
+            Scanner
+        </a>
+
+        <a href="/collections">
+            <i class="fa-solid fa-folder"></i>
+            Collections
+        </a>
+
+        <a href="/wishlist">
+            <i class="fa-solid fa-star"></i>
+            Wishlist
+        </a>
+
+        <a href="/cards">
+            <i class="fa-solid fa-database"></i>
+            Database
+        </a>
+
+        {% if current_user.is_authenticated %}
+
+            <a href="/logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                Logout
+            </a>
+
+        {% else %}
+
+            <a href="/login">
+                <i class="fa-solid fa-user"></i>
+                Login
+            </a>
+
+        {% endif %}
+
+    </nav>
+    <div class="saved-sidebar">
+
+        <h3>Your Cards</h3>
+        <div id="saved-cards"></div>
+
+    </div>
+
+</div>
+
+<div class="content">
+
+{% block content %}
+{% endblock %}
+
+</div>
+<script>
+    async function loadSavedCards(){
+        try{
+            const response =
+            await fetch(
+                "/api/saved-cards"
+            )
+            if(!response.ok)
+            return
+            const cards =
+            await response.json()
+            const container =
+            document.getElementById(
+                "saved-cards"
+            )
+            if(!container)
+            return
+            container.innerHTML = ""
+            cards.forEach(card=>{
+                container.innerHTML += `
+
+                    <div
+                        class="saved-item"
+                        onclick="window.location='/card/${card.id}'">
+
+                            ${card.name}
+                    </div>
+                `
+            })
+
+        }catch(error){
+
+            console.error(error)
+        }
+    }
+    loadSavedCards()
+
+</script>
+</body>
+</html>

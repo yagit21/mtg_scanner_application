@@ -10,9 +10,12 @@ def scan_card(frame):
         return {"success": False, "message": "No card detected"} #There is no card in the image
     #If it returns a crop region of the card (gets the prediction of the card using the ResNet model)
     prediction = classify_card(crop)
-
+    
     return {
-        "success": True, #It is succesful
-        "card": prediction["card"], #Returns the card type
-        "confidence": round(prediction["confidence"], 2) #A confidence score rounded to 2 decimal places
+        "success": True,
+        "card": prediction["card"],
+        "confidence": round(
+            prediction["confidence"],
+            2
+        )
     }
